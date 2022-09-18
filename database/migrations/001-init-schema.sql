@@ -16,6 +16,31 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+ALTER TABLE IF EXISTS ONLY keyme.recording DROP CONSTRAINT IF EXISTS fk_recording_user;
+ALTER TABLE IF EXISTS ONLY keyme.recording DROP CONSTRAINT IF EXISTS fk_recording_audio;
+ALTER TABLE IF EXISTS ONLY keyme.recording DROP CONSTRAINT IF EXISTS fk_recording_analyzed;
+ALTER TABLE IF EXISTS ONLY keyme.controller DROP CONSTRAINT IF EXISTS fk_controller_user;
+ALTER TABLE IF EXISTS ONLY keyme."user" DROP CONSTRAINT IF EXISTS pk_user;
+ALTER TABLE IF EXISTS ONLY keyme.recording DROP CONSTRAINT IF EXISTS pk_recording;
+ALTER TABLE IF EXISTS ONLY keyme.controller DROP CONSTRAINT IF EXISTS pk_controller;
+ALTER TABLE IF EXISTS ONLY keyme.audio DROP CONSTRAINT IF EXISTS pk_audio;
+ALTER TABLE IF EXISTS ONLY keyme.analyzed DROP CONSTRAINT IF EXISTS pk_analyzed;
+ALTER TABLE IF EXISTS keyme."user" ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS keyme.recording ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS keyme.controller ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS keyme.audio ALTER COLUMN id DROP DEFAULT;
+ALTER TABLE IF EXISTS keyme.analyzed ALTER COLUMN id DROP DEFAULT;
+DROP SEQUENCE IF EXISTS keyme.user_id_seq;
+DROP TABLE IF EXISTS keyme."user";
+DROP SEQUENCE IF EXISTS keyme.recording_id_seq;
+DROP TABLE IF EXISTS keyme.recording;
+DROP SEQUENCE IF EXISTS keyme.controller_id_seq;
+DROP TABLE IF EXISTS keyme.controller;
+DROP SEQUENCE IF EXISTS keyme.audio_id_seq;
+DROP TABLE IF EXISTS keyme.audio;
+DROP SEQUENCE IF EXISTS keyme.analyzed_id_seq;
+DROP TABLE IF EXISTS keyme.analyzed;
+DROP SCHEMA IF EXISTS keyme;
 --
 -- Name: keyme; Type: SCHEMA; Schema: -; Owner: postgres
 --
