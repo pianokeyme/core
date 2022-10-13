@@ -34,7 +34,7 @@ void publishMessage();
 void onMessageReceived(int messageSize);
 unsigned long getTime();
 void connectWiFi();
-void connectMQTT();
+bool connectMQTT();
 void colorWipe(uint32_t color);
 void updateStrip(unsigned char* notes);
 void updateNote(unsigned char note);
@@ -59,8 +59,6 @@ const char* certificate  = SECRET_CERTIFICATE;
 WiFiClient    wifiClient;            // Used for the TCP socket connection
 BearSSLClient sslClient(wifiClient); // Used for SSL/TLS connection, integrates with ECC508
 MqttClient    mqttClient(sslClient);
-
-unsigned long lastMillis = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -97,23 +95,23 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    colorWipe(strip.Color(255, 0, 0));
+    colorWipe(strip.Color(100,0,0));
     connectWiFi();
   }
 
   if (!mqttClient.connected()) {
-    colorWipe(strip.Color(255, 255, 0));
+    colorWipe(strip.Color(50,50,0));
     // MQTT client is disconnected, connect
-    connectMQTT();
-    colorWipe(strip.Color(0, 255, 0));
+    if (connectMQTT()) {
+      colorWipe(strip.Color(0,100,0));
+    }
+    else {
+      Serial.println();
+      Serial.println("Disconnected from the WiFi network");
+      return;
+    }
   }
 
   // poll for new MQTT messages and send keep alives
   mqttClient.poll();
-
-  // publish a message roughly every 5 seconds.
-  if (millis() - lastMillis > 5000) {
-    lastMillis = millis();
-    publishMessage();
-  }
 }

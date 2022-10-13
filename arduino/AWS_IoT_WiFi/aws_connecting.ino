@@ -19,13 +19,16 @@ void connectWiFi() {
   Serial.println();
 }
 
-void connectMQTT() {
+bool connectMQTT() {
   Serial.print("Attempting to MQTT broker: ");
   Serial.print(broker);
   Serial.println(" ");
 
   while (!mqttClient.connect(broker, 8883)) {
     // failed, retry
+    if (WiFi.status() != WL_CONNECTED) {
+      return false;
+    }
     Serial.print(".");
     delay(5000);
   }
@@ -36,4 +39,6 @@ void connectMQTT() {
 
   // subscribe to a topic
   mqttClient.subscribe("arduino/incoming");
+
+  return true;
 }
