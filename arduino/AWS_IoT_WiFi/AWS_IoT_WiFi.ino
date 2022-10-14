@@ -35,6 +35,7 @@ void onMessageReceived(int messageSize);
 unsigned long getTime();
 void connectWiFi();
 bool connectMQTT();
+void colorBlink(uint32_t color, int wait);
 void colorWipe(uint32_t color);
 void updateStrip(unsigned char* notes);
 void updateNote(unsigned char note);
@@ -56,11 +57,19 @@ const char pass[]        = SECRET_PASS;
 const char broker[]      = SECRET_BROKER;
 const char* certificate  = SECRET_CERTIFICATE;
 
+// Receiving Messages Buffer
+uint8_t buf[256];
+size_t bufSize = 256;
+
+uint16_t bridgeNote1;
+uint16_t bridgeNote2;
+
 WiFiClient    wifiClient;            // Used for the TCP socket connection
 BearSSLClient sslClient(wifiClient); // Used for SSL/TLS connection, integrates with ECC508
 MqttClient    mqttClient(sslClient);
 
 void setup() {
+
   Serial.begin(115200);
   while (!Serial);
 
@@ -90,7 +99,10 @@ void setup() {
 
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
-  strip.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
+  strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
+
+  bridgeNote1 = 37 - floor(LED_SHIFT/2) - (LED_SHIFT%2);
+  bridgeNote2 = bridgeNote1 + 36 + (LED_SHIFT%2);
 }
 
 void loop() {
@@ -103,7 +115,7 @@ void loop() {
     colorWipe(strip.Color(50,50,0));
     // MQTT client is disconnected, connect
     if (connectMQTT()) {
-      colorWipe(strip.Color(0,100,0));
+      colorBlink(strip.Color(0,100,0), 200);
     }
     else {
       Serial.println();

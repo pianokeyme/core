@@ -6,7 +6,7 @@ unsigned long getTime() {
 void connectWiFi() {
   Serial.print("Attempting to connect to SSID: ");
   Serial.print(ssid);
-  Serial.print(" ");
+  Serial.println(" ");
 
   while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
     // failed, retry

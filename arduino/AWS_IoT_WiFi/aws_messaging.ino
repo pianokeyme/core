@@ -9,6 +9,7 @@ void publishMessage() {
 }
 
 void onMessageReceived(int messageSize) {
+  //Serial.print(getTime());
   // we received a message, print out the topic and contents
   Serial.print("Received a message with topic '");
   Serial.print(mqttClient.messageTopic());
@@ -17,10 +18,29 @@ void onMessageReceived(int messageSize) {
   Serial.println(" bytes:");
 
   // use the Stream interface to print the contents
-  while (mqttClient.available()) {
-    Serial.print((char)mqttClient.read());
+  if (mqttClient.available()) {
+    Serial.print(mqttClient.read(buf, bufSize));
+    Serial.print(messageSize);
   }
   Serial.println();
+
+  uint8_t *instr;
+  instr = buf;
+  if (*instr != 0x0F) {
+    Serial.print("Invalid message discarded");
+    return;
+  }
+  instr++;
+  switch (*instr) {
+    case 0x64:
+      Serial.println("");
+      Serial.println("Instr: Update Strip");
+      Serial.print(*instr);
+      updateStrip(++instr);
+      break;
+    default:
+      break;
+  }
 
   Serial.println();
 }

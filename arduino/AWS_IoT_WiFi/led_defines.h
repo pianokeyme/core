@@ -11,10 +11,15 @@
 // How many NeoPixels are all the used LEDs shifted by?
 #define LED_SHIFT 2
 
+// How many piano notes are there? (size of piano)
+#define NUM_NOTES 88
+
 // Colour code for sharp and flat keys. RGB: 255,87,51
-// #define GARNET 0x9A2A2A
+#define GARNET 0x9A2A2A
 
 // Colour code for natural keys. RGB: 128,128,128
-// #define GRAY   0x808080
+#define GRAY   0x808080
 
-// dict["C4"] = {85,86}
+#define RED     0xFF1744
+#define YELLOW  0xFFEA00
+#define GREEN   0x00E676
