@@ -12,13 +12,13 @@ def bandpass_filter(raw_signal, fs):
 
 
 def main():
-    df = pd.read_csv("data.txt")
+    df = pd.read_csv("data.txt", dtype="float32")
     print(len(df))
-    df = df.to_numpy().reshape(len(df) // 4, )
+    df = df.to_numpy().reshape(len(df), )
     print(df.shape)
-    frame_size = 500  # length of each section in ms
+    frame_size = 100  # length of each section in ms
     magnitude_threshold = 0
-    frame_rate = 16000
+    frame_rate = 48000
     wavfile.write("./unfiltered.wav", frame_rate, df)
     filtered_signal = bandpass_filter(df, frame_rate)
     wavfile.write("./filtered.wav", frame_rate, filtered_signal)
