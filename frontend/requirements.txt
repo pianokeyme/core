@@ -17,3 +17,4 @@ pytz==2022.4
 scipy==1.9.2
 six==1.16.0
 sounddevice==0.4.5
+websockets==10.3

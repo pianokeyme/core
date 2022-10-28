@@ -176,13 +176,13 @@ if __name__ == "__main__":
         slice_and_find_note_interactive(filtered_signal, frame_rate, frame_size, magnitude_threshold)
 
     if mode == 4:
-        df = pd.read_csv("data.txt")
+        df = pd.read_csv("data.txt", dtype="float32")
         print(len(df))
         df = df.to_numpy().reshape(len(df),)
         print(df.shape)
-        frame_size = 500  # length of each section in ms
+        frame_size = 100  # length of each section in ms
         magnitude_threshold = 0
-        frame_rate = 16000
+        frame_rate = 48000
         filtered_signal = bandpass_filter(df, frame_rate)
         slice_and_find_note(filtered_signal, frame_rate, frame_size, magnitude_threshold)
 
