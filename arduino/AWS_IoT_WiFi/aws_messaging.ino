@@ -36,7 +36,7 @@ void onMessageReceived(int messageSize) {
       Serial.println("");
       Serial.println("Instr: Update Strip");
       Serial.print(*instr);
-      updateStrip(++instr);
+      updateStrip(++instr, GARNET);
       break;
     default:
       break;

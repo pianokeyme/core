@@ -37,8 +37,13 @@ void connectWiFi();
 bool connectMQTT();
 void colorBlink(uint32_t color, int wait);
 void colorWipe(uint32_t color);
-void updateStrip(unsigned char* notes);
-void updateNote(unsigned char note);
+void initializeStrip();
+void shiftStrip(uint8_t *notes, uint8_t direction);
+void updateStrip(unsigned char* notes, uint32_t color);
+void updateNote(unsigned char note, uint32_t color);
+uint16_t getLed(uint8_t note);
+bool isBridgeNote(uint8_t note);
+void updateBridgeNotes();
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
@@ -63,6 +68,7 @@ size_t bufSize = 256;
 
 uint16_t bridgeNote1;
 uint16_t bridgeNote2;
+uint16_t ledShift;
 
 WiFiClient    wifiClient;            // Used for the TCP socket connection
 BearSSLClient sslClient(wifiClient); // Used for SSL/TLS connection, integrates with ECC508
@@ -100,9 +106,8 @@ void setup() {
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
-
-  bridgeNote1 = 37 - floor(LED_SHIFT/2) - (LED_SHIFT%2);
-  bridgeNote2 = bridgeNote1 + 36 + (LED_SHIFT%2);
+  ledShift = 2;
+  updateBridgeNotes();
 }
 
 void loop() {
@@ -115,7 +120,7 @@ void loop() {
     colorWipe(strip.Color(50,50,0));
     // MQTT client is disconnected, connect
     if (connectMQTT()) {
-      colorBlink(strip.Color(0,100,0), 200);
+      initializeStrip();      
     }
     else {
       Serial.println();

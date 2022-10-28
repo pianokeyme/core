@@ -8,9 +8,6 @@
 // How many NeoPixels are used for the keys? 84*2 + 2*2 + 2*1 = 174 LEDs
 #define LED_USED_COUNT 174
 
-// How many NeoPixels are all the used LEDs shifted by?
-#define LED_SHIFT 2
-
 // How many piano notes are there? (size of piano)
 #define NUM_NOTES 88
 
