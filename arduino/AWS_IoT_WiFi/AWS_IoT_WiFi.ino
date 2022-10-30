@@ -22,7 +22,7 @@
 #include <ArduinoBearSSL.h>
 #include <ArduinoECCX08.h>
 #include <ArduinoMqttClient.h>
-#include <WiFiNINA.h> // change to #include <WiFi101.h> for MKR1000
+#include <WiFiNINA.h>
 
 #include "arduino_secrets.h"
 #include "led_defines.h"
@@ -30,11 +30,16 @@
 #include <Adafruit_NeoPixel.h>
 
 // Function Prototypes
-void publishMessage();
-void onMessageReceived(int messageSize);
+void printWiFiStatus();
+void checkStatus();
+void createAccessPoint();
+void listenForClients();
+void closeAccessPoint();
 unsigned long getTime();
 void connectWiFi();
 bool connectMQTT();
+void publishMessage();
+void onMessageReceived(int messageSize);
 void colorBlink(uint32_t color, int wait);
 void colorWipe(uint32_t color);
 void initializeStrip();
@@ -57,10 +62,15 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
 /////// Enter your sensitive data in arduino_secrets.h
-const char ssid[]        = SECRET_SSID;
-const char pass[]        = SECRET_PASS;
+String ssid;
+String pass;
 const char broker[]      = SECRET_BROKER;
 const char* certificate  = SECRET_CERTIFICATE;
+
+const char ap_ssid[]     = SECRET_AP_SSID; // your network SSID (name)
+const char ap_pass[]     = SECRET_AP_PASS; // your network password (use for WPA, or use as key for WEP)
+int status = WL_IDLE_STATUS;
+WiFiServer server(80);
 
 // Receiving Messages Buffer
 uint8_t buf[256];
@@ -78,7 +88,15 @@ void setup() {
 
   Serial.begin(115200);
   while (!Serial);
-
+  
+  String fv = WiFi.firmwareVersion();
+  if (fv < WIFI_FIRMWARE_LATEST_VERSION) {
+    Serial.println("Please upgrade the firmware");
+  }
+  if (WiFi.status() == WL_NO_MODULE) {
+    Serial.println("Communication with WiFi module failed!");
+    while (1);
+  }
   if (!ECCX08.begin()) {
     Serial.println("No ECCX08 present!");
     while (1);
@@ -87,18 +105,9 @@ void setup() {
   // Set a callback to get the current time
   // used to validate the servers certificate
   ArduinoBearSSL.onGetTime(getTime);
-
   // Set the ECCX08 slot to use for the private key
   // and the accompanying public certificate for it
   sslClient.setEccSlot(0, certificate);
-
-  // Optional, set the client id used for MQTT,
-  // each device that is connected to the broker
-  // must have a unique client id. The MQTTClient will generate
-  // a client id for you based on the millis() value if not set
-  //
-  // mqttClient.setId("clientId");
-
   // Set the message callback, this function is
   // called when the MQTTClient receives a message
   mqttClient.onMessage(onMessageReceived);
@@ -110,10 +119,25 @@ void setup() {
   updateBridgeNotes();
 }
 
+/*
+1. If not connected to wifi, turn AP on
+2, Listen for connection.
+3. Once connected, wait for message.
+4. Once message received, test it with connect wifi
+   If doesn't work, say doesn't work and go back to 3.
+5. If works, turn AP off and proceed
+*/
+
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     colorWipe(strip.Color(100,0,0));
-    connectWiFi();
+    createAccessPoint(); // Might need to move inside the loop
+    colorWipe(strip.Color(0,0,100));
+    while (WiFi.status() != WL_CONNECTED) {
+      listenForClients();
+      connectWiFi();
+    }
+    closeAccessPoint(); // Might need to move inside the loop
   }
 
   if (!mqttClient.connected()) {

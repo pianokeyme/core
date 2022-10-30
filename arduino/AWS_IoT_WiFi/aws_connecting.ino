@@ -8,14 +8,22 @@ void connectWiFi() {
   Serial.print(ssid);
   Serial.println(" ");
 
-  while (WiFi.begin(ssid, pass) != WL_CONNECTED) {
+  const char* s = ssid.c_str();
+  const char* p = pass.c_str();
+
+  for (uint8_t i=0; i<10; i++) {
+    if(WiFi.begin(s, p) == WL_CONNECTED) {
+      Serial.println();
+      Serial.println("You're connected to the network!");
+      Serial.println();
+    }
     // failed, retry
     Serial.print(".");
     delay(5000);
   }
-  Serial.println();
 
-  Serial.println("You're connected to the network");
+  Serial.println();
+  Serial.println("Failed to connect to the network");
   Serial.println();
 }
 
