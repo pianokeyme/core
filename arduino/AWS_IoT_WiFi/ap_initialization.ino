@@ -27,7 +27,8 @@ void checkStatus() {
         Serial.println("Device connected to AP");
         break;
       default:
-        Serial.println("KeyMe Error");
+        Serial.print("KeyMe Error: ");
+        Serial.println(status);
         break;
     }
   }
@@ -84,8 +85,11 @@ void listenForClients() {
               client.println();
 
               // the content of the HTTP response follows the header:
-              client.print("Click <a href=\"/H\">here</a> turn the LED on<br>");
-              client.print("Click <a href=\"/L\">here</a> turn the LED off<br>");
+              // client.print("Click <a href=\"/H\">here</a> turn the LED on<br>");
+              // client.print("Click <a href=\"/L\">here</a> turn the LED off<br>");
+
+              client.print("<a href=\"/TEXT_SSID\">Submit SSID</a><br><br>"); // Replace TEXT with SSID to test
+              client.print("<a href=\"/TEXT_PASS\">Submit PASS</a><br><br>"); // REPLACE TEXT with PASS to test
 
               // The HTTP response ends with another blank line:
               client.println();
@@ -101,19 +105,24 @@ void listenForClients() {
           }
 
           // Check to see if the client request was "GET /H" or "GET /L":
-          if (currentLine.endsWith("/SSID")) {
-            ssid = currentLine.substring(0, currentLine.length()-6);
-            Serial.print("Acquired Client SSID:");
+          if (currentLine.startsWith("GET /") && currentLine.endsWith("_SSID")) {
+            ssid = currentLine.substring(5, currentLine.length()-5);
+            Serial.println();
+            Serial.print("***Acquired Client SSID:: ");
             Serial.println(ssid);
             ssid_acquired = true;
           }
-          if (currentLine.endsWith("/PASS")) {
-            pass = currentLine.substring(0, currentLine.length()-6);
-            Serial.print("Acquired Client PASS:");
+          if (currentLine.startsWith("GET /") && currentLine.endsWith("_PASS")) {
+            pass = currentLine.substring(5, currentLine.length()-5);
+            Serial.println();
+            Serial.print("***Acquired Client PASS:: ");
             Serial.println(pass);
             pass_acquired = true;
           }
           if (ssid_acquired && pass_acquired) {
+            Serial.println();
+            Serial.println("***** Both Client SSID and PASS Acquired *****");
+            Serial.println();
             return;
           }
         }
@@ -123,8 +132,4 @@ void listenForClients() {
       Serial.println("client disconnected");
     }
   }
-}
-
-void closeAccessPoint() {
-  WiFi.end();
 }

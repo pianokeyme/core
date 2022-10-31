@@ -34,7 +34,6 @@ void printWiFiStatus();
 void checkStatus();
 void createAccessPoint();
 void listenForClients();
-void closeAccessPoint();
 unsigned long getTime();
 void connectWiFi();
 bool connectMQTT();
@@ -131,13 +130,11 @@ void setup() {
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     colorWipe(strip.Color(100,0,0));
-    createAccessPoint(); // Might need to move inside the loop
-    colorWipe(strip.Color(0,0,100));
     while (WiFi.status() != WL_CONNECTED) {
+      createAccessPoint();
       listenForClients();
       connectWiFi();
     }
-    closeAccessPoint(); // Might need to move inside the loop
   }
 
   if (!mqttClient.connected()) {
