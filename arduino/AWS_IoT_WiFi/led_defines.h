@@ -1,6 +1,6 @@
 // Which pin on the Arduino is connected to the NeoPixels?
 // On a Trinket or Gemma we suggest changing this to 1:
-#define LED_PIN 6
+#define LED_PIN 2
 
 // How many NeoPixels are attached to the Arduino?
 #define LED_COUNT 288

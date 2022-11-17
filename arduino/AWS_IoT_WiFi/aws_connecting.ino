@@ -20,6 +20,7 @@ void connectWiFi() {
     }
     // failed, retry
     Serial.print(".");
+    colorBlink(strip.Color(100,0,0), 200);
     delay(5000);
   }
 
