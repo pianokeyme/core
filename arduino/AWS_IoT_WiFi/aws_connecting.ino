@@ -5,11 +5,10 @@ unsigned long getTime() {
 
 void connectWiFi() {
   Serial.print("Attempting to connect to SSID: ");
-  Serial.print(ssid);
-  Serial.println(" ");
+  Serial.println(wificreds.ssid);
 
-  const char* s = ssid.c_str();
-  const char* p = pass.c_str();
+  const char* s = wificreds.ssid.c_str();
+  const char* p = wificreds.pass.c_str();
 
   for (uint8_t i=0; i<5; i++) {
     if(WiFi.begin(s, p) == WL_CONNECTED) {
@@ -20,7 +19,7 @@ void connectWiFi() {
     }
     // failed, retry
     Serial.print(".");
-    colorBlink(strip.Color(100,0,0), 200);
+    colorBlink(RED, 100);
     delay(5000);
   }
 
@@ -32,7 +31,7 @@ void connectWiFi() {
 bool connectMQTT() {
   Serial.print("Attempting to MQTT broker: ");
   Serial.print(broker);
-  Serial.println(" ");
+  Serial.println();
 
   while (!mqttClient.connect(broker, 8883)) {
     // failed, retry
@@ -40,10 +39,10 @@ bool connectMQTT() {
       return false;
     }
     Serial.print(".");
+    colorBlink(YELLOW, 100);
     delay(5000);
   }
   Serial.println();
-
   Serial.println("You're connected to the MQTT broker");
   Serial.println();
 

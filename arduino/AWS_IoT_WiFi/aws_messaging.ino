@@ -20,27 +20,7 @@ void onMessageReceived(int messageSize) {
   // use the Stream interface to print the contents
   if (mqttClient.available()) {
     Serial.print(mqttClient.read(buf, bufSize));
-    Serial.print(messageSize);
+    Serial.println(messageSize);
   }
-  Serial.println();
-
-  uint8_t *instr;
-  instr = buf;
-  if (*instr != 0x0F) {
-    Serial.print("Invalid message discarded");
-    return;
-  }
-  instr++;
-  switch (*instr) {
-    case 0x64:
-      Serial.println("");
-      Serial.println("Instr: Update Strip");
-      Serial.print(*instr);
-      updateStrip(++instr, GARNET);
-      break;
-    default:
-      break;
-  }
-
-  Serial.println();
+  handle_instruction();
 }

@@ -11,12 +11,10 @@
 // How many piano notes are there? (size of piano)
 #define NUM_NOTES 88
 
-// Colour code for sharp and flat keys. RGB: 255,87,51
-#define GARNET 0x9A2A2A
-
-// Colour code for natural keys. RGB: 128,128,128
-#define GRAY   0x808080
-
-#define RED     0xFF1744
-#define YELLOW  0xFFEA00
-#define GREEN   0x00E676
+// Color code for leds
+#define BLACK   0x000000
+#define RED     0x640000
+#define YELLOW  0x323232
+#define GREEN   0x006400
+#define BLUE    0x000032
+#define GARNET  0x9A2A2A

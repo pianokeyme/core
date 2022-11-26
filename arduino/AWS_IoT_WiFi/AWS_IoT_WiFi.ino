@@ -39,18 +39,26 @@ void connectWiFi();
 bool connectMQTT();
 void publishMessage();
 void onMessageReceived(int messageSize);
+bool handle_instruction();
+void updateNotes(unsigned char* notes);
+void resizePiano(uint8_t *size);
+void changeColor(uint8_t *color);
 void colorBlink(uint32_t color, int wait);
 void colorWipe(uint32_t color);
 void initializeStrip();
-void shiftStrip(uint8_t *notes, uint8_t direction);
-void updateStrip(unsigned char* notes, uint32_t color);
-void updateNote(unsigned char note, uint32_t color);
+void updateNote(unsigned char note);
+uint32_t getNoteColor(uint8_t note);
+uint32_t getColorWheel(uint8_t WheelPos);
+uint32_t getColorGradient(uint8_t note);
+uint8_t getRGB(uint32_t color, uint8_t index);
 uint16_t getLed(uint8_t note);
 bool isBridgeNote(uint8_t note);
 void updateBridgeNotes();
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+enum Effects {Rainbow=0, Gradient=1} notes_effect;
+uint32_t notes_color = GARNET;
 // Argument 1 = Number of pixels in NeoPixel strip
 // Argument 2 = Arduino pin number (most are valid)
 // Argument 3 = Pixel type flags, add together as needed:
@@ -61,11 +69,13 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
 /////// Enter your sensitive data in arduino_secrets.h
-String ssid;
-String pass;
+struct WiFiInfo {
+  String ssid;
+  String pass;
+};
+WiFiInfo wificreds;
 const char broker[]      = SECRET_BROKER;
 const char* certificate  = SECRET_CERTIFICATE;
-
 const char ap_ssid[]     = SECRET_AP_SSID; // your network SSID (name)
 const char ap_pass[]     = SECRET_AP_PASS; // your network password (use for WPA, or use as key for WEP)
 int status = WL_IDLE_STATUS;
@@ -75,9 +85,9 @@ WiFiServer server(80);
 uint8_t buf[256];
 size_t bufSize = 256;
 
+uint16_t ledShift = 2;
 uint16_t bridgeNote1;
 uint16_t bridgeNote2;
-uint16_t ledShift;
 
 WiFiClient    wifiClient;            // Used for the TCP socket connection
 BearSSLClient sslClient(wifiClient); // Used for SSL/TLS connection, integrates with ECC508
@@ -114,7 +124,6 @@ void setup() {
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(10); // Set BRIGHTNESS to about 1/5 (max = 255)
-  ledShift = 2;
   updateBridgeNotes();
 }
 
@@ -129,7 +138,10 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    colorWipe(strip.Color(100,0,0));
+    colorWipe(RED);
+    if (wificreds.ssid.length() > 0 && wificreds.pass.length() > 0) {
+      connectWiFi();
+    }
     while (WiFi.status() != WL_CONNECTED) {
       createAccessPoint();
       listenForClients();
@@ -138,7 +150,7 @@ void loop() {
   }
 
   if (!mqttClient.connected()) {
-    colorWipe(strip.Color(50,50,0));
+    colorWipe(YELLOW);
     // MQTT client is disconnected, connect
     if (connectMQTT()) {
       initializeStrip();      
