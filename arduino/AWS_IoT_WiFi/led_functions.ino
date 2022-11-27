@@ -1,5 +1,5 @@
 void colorBlink(uint32_t color, int wait) {
-  for (uint8_t i=0; i<3; i++) {
+  for (uint16_t i=0; i<3; i++) {
     colorWipe(BLACK);
     delay(wait);
     colorWipe(color);
@@ -8,7 +8,7 @@ void colorBlink(uint32_t color, int wait) {
 }
 
 void colorWipe(uint32_t color) {
-  for(uint8_t i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
+  for(uint16_t i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
     strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
   }
   strip.show();    //  Update strip to match
@@ -16,6 +16,7 @@ void colorWipe(uint32_t color) {
 
 void initializeStrip() {
   colorBlink(GREEN, 200);
+  colorWipe(BLACK);
   if (ledShift == 1) {
     strip.setPixelColor(ledShift-1, BLUE);
   }
@@ -100,7 +101,7 @@ uint32_t getColorGradient(uint8_t note) {
 
 uint8_t getRGB(uint32_t color, uint8_t index) {
   uint32_t mask = 0xFF0000 >> (index*8);
-  uint8_t basecolor = (color & mask) >> (index*8);
+  uint8_t basecolor = (color & mask) >> ((2-index)*8);
   return basecolor;
 }
 

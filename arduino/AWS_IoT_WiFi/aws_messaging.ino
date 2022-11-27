@@ -15,12 +15,12 @@ void onMessageReceived(int messageSize) {
   Serial.print(mqttClient.messageTopic());
   Serial.print("', length ");
   Serial.print(messageSize);
-  Serial.println(" bytes:");
+  // Serial.println(" bytes:");
 
   // use the Stream interface to print the contents
   if (mqttClient.available()) {
-    Serial.print(mqttClient.read(buf, bufSize));
-    Serial.println(messageSize);
+    Serial.println(mqttClient.read(buf, bufSize));
+    // Serial.println(messageSize);
   }
   handle_instruction();
 }

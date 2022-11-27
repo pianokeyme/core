@@ -8,28 +8,28 @@ bool handle_instruction() {
   instr++;
   switch (*instr) {
     case 0x64:
-      Serial.println();
-      Serial.println("Instr: Update Notes");
-      Serial.println(*instr++);
+      Serial.print(*instr++);
+      Serial.println(" Instr: Update Notes");
       updateNotes(instr);
+      Serial.println();
       break;
     case 0x65:
-      Serial.println();
-      Serial.println("Instr: Resize Piano");
-      Serial.println(*instr++);
+      Serial.print(*instr++);
+      Serial.println(" Instr: Resize Piano");
       resizePiano(instr);
+      Serial.println();
       break;
     case 0x66:
-      Serial.println();
-      Serial.println("Instr: Change Color");
-      Serial.println(*instr++);
+      Serial.print(*instr++);
+      Serial.println(" Instr: Change Color");
       changeColor(instr);
+      Serial.println();
       break;
     case 0x67:
-      Serial.println();
-      Serial.println("Instr: Change Color Scheme");
-      Serial.println(*instr++);
+      Serial.print(*instr++);
+      Serial.println(" Instr: Change Color Scheme");
       changeColorScheme(instr);
+      Serial.println();
       break;
     default:
       break;
@@ -39,8 +39,8 @@ bool handle_instruction() {
 
 void updateNotes(uint8_t *notes) {
   for (uint8_t i=0; i<NUM_NOTES/8; i++) {
-    Serial.print(" ");
     Serial.print(notes[i]);
+    Serial.print(" ");
     for (uint8_t j=0; j<8; j++) {
       uint8_t note = i*8 + j + 1;
       uint8_t value = notes[i]>>(7-j) & 0x01;
@@ -48,6 +48,7 @@ void updateNotes(uint8_t *notes) {
     }
   }
   strip.show();
+  Serial.println();
 }
 
 void resizePiano(uint8_t *size) {
@@ -63,10 +64,11 @@ void changeColor(uint8_t *color) {
     temp_color = temp_color | ((uint32_t)color[i] << ((2-i)*8));
   }
   notes_color = temp_color;
+  Serial.println();
 }
 
 void changeColorScheme(uint8_t *colorscheme) {
   notes_effect = (Effects)*colorscheme;
   Serial.print("Color Scheme: ");
-  Serial.print(notes_effect);
+  Serial.println(notes_effect);
 }

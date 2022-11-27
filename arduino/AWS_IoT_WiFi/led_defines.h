@@ -14,7 +14,6 @@
 // Color code for leds
 #define BLACK   0x000000
 #define RED     0x640000
-#define YELLOW  0x323232
+#define YELLOW  0xFFFF00
 #define GREEN   0x006400
-#define BLUE    0x000032
-#define GARNET  0x9A2A2A
+#define BLUE    0x000064

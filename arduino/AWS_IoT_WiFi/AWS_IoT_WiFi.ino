@@ -57,8 +57,8 @@ void updateBridgeNotes();
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-enum Effects {Rainbow=0, Gradient=1} notes_effect;
-uint32_t notes_color = GARNET;
+enum Effects {Default=0, Rainbow=1, Gradient=2} notes_effect;
+uint32_t notes_color = RED;
 // Argument 1 = Number of pixels in NeoPixel strip
 // Argument 2 = Arduino pin number (most are valid)
 // Argument 3 = Pixel type flags, add together as needed:
