@@ -5,12 +5,6 @@
 // How many NeoPixels are attached to the Arduino?
 #define LED_COUNT 288
 
-// How many NeoPixels are used for the keys? 84*2 + 2*2 + 2*1 = 174 LEDs
-#define LED_USED_COUNT 174
-
-// How many piano notes are there? (size of piano)
-#define NUM_NOTES 88
-
 // Color code for leds
 #define BLACK   0x000000
 #define RED     0x640000

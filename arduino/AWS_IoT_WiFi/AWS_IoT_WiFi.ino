@@ -39,10 +39,14 @@ void connectWiFi();
 bool connectMQTT();
 void publishMessage();
 void onMessageReceived(int messageSize);
+
 bool handle_instruction();
 void updateNotes(unsigned char* notes);
 void resizePiano(uint8_t *size);
 void changeColor(uint8_t *color);
+void changeColorScheme(uint8_t *colorscheme);
+void shiftLEDs(uint8_t *instr);
+
 void colorBlink(uint32_t color, int wait);
 void colorWipe(uint32_t color);
 void initializeStrip();
@@ -54,11 +58,15 @@ uint8_t getRGB(uint32_t color, uint8_t index);
 uint16_t getLed(uint8_t note);
 bool isBridgeNote(uint8_t note);
 void updateBridgeNotes();
+void updatePianoSize(uint8_t size);
+void updateLEDShift(uint16_t shift);
+void updateRange(uint32_t color);
 
 // Declare our NeoPixel strip object:
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
-enum Effects {Default=0, Rainbow=1, Gradient=2} notes_effect;
-uint32_t notes_color = RED;
+enum Effects {Default=0, Rainbow=1, Gradient=2} piano_effect;
+uint32_t piano_color = RED;
+uint8_t piano_size = 88;
 // Argument 1 = Number of pixels in NeoPixel strip
 // Argument 2 = Arduino pin number (most are valid)
 // Argument 3 = Pixel type flags, add together as needed:
@@ -140,12 +148,13 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     colorWipe(RED);
     if (wificreds.ssid.length() > 0 && wificreds.pass.length() > 0) {
+      Serial.println("Already saved wifi");
       connectWiFi();
     }
     while (WiFi.status() != WL_CONNECTED) {
       createAccessPoint();
       listenForClients();
-      connectWiFi();
+    connectWiFi();
     }
   }
 

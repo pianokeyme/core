@@ -31,6 +31,12 @@ bool handle_instruction() {
       changeColorScheme(instr);
       Serial.println();
       break;
+    case 0x68:
+      Serial.print(*instr++);
+      Serial.println(" Instr: Shift LEDs");
+      shiftLEDs(instr);
+      Serial.println();
+      break;
     default:
       break;
   }
@@ -38,7 +44,7 @@ bool handle_instruction() {
 }
 
 void updateNotes(uint8_t *notes) {
-  for (uint8_t i=0; i<NUM_NOTES/8; i++) {
+  for (uint8_t i=0; i<piano_size/8; i++) {
     Serial.print(notes[i]);
     Serial.print(" ");
     for (uint8_t j=0; j<8; j++) {
@@ -52,7 +58,9 @@ void updateNotes(uint8_t *notes) {
 }
 
 void resizePiano(uint8_t *size) {
-  return;
+  updatePianoSize(*size);
+  Serial.print("Piano Size: ");
+  Serial.println(piano_size);
 }
 
 void changeColor(uint8_t *color) {
@@ -63,12 +71,18 @@ void changeColor(uint8_t *color) {
     Serial.print(" ");
     temp_color = temp_color | ((uint32_t)color[i] << ((2-i)*8));
   }
-  notes_color = temp_color;
+  piano_color = temp_color;
   Serial.println();
 }
 
 void changeColorScheme(uint8_t *colorscheme) {
-  notes_effect = (Effects)*colorscheme;
+  piano_effect = (Effects)*colorscheme;
   Serial.print("Color Scheme: ");
-  Serial.println(notes_effect);
+  Serial.println(piano_effect);
+}
+
+void shiftLEDs(uint8_t *shift) {
+  updateLEDShift(*shift);
+  Serial.print("LED Shift: ");
+  Serial.println(ledShift);
 }

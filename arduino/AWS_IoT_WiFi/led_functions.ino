@@ -14,29 +14,17 @@ void colorWipe(uint32_t color) {
   strip.show();    //  Update strip to match
 }
 
+void selectiveWipe(uint32_t color, uint16_t start, uint16_t stop) {
+  for(uint16_t i=start; i<stop; i++) { // For each pixel in strip...
+    strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+  }
+  strip.show();    //  Update strip to match
+}
+
 void initializeStrip() {
   colorBlink(GREEN, 200);
   colorWipe(BLACK);
-  if (ledShift == 1) {
-    strip.setPixelColor(ledShift-1, BLUE);
-  }
-  else if (ledShift > 1) {
-    strip.setPixelColor(ledShift-1, BLUE);
-    strip.setPixelColor(ledShift-2, BLUE);        
-  }
-  
-  uint16_t lastLed = getLed(NUM_NOTES);
-  if (!isBridgeNote(NUM_NOTES)) {
-    lastLed++;
-  }
-  if (lastLed == LED_COUNT-2) {
-    strip.setPixelColor(lastLed+1, BLUE);
-  }
-  else if (lastLed < LED_COUNT-2) {
-    strip.setPixelColor(lastLed+1, BLUE);
-    strip.setPixelColor(lastLed+2, BLUE);
-  }
-  strip.show();
+  updatePianoSize(piano_size);
 }
 
 void updateNote(uint8_t note, uint8_t value) {
@@ -50,14 +38,14 @@ void updateNote(uint8_t note, uint8_t value) {
 
 uint32_t getNoteColor(uint8_t note) {
   uint32_t color;
-  if (notes_effect == Rainbow) {
+  if (piano_effect == Rainbow) {
     color = getColorWheel(note);
   }
-  else if (notes_effect == Gradient) {
+  else if (piano_effect == Gradient) {
     color = getColorGradient(note);
   }
   else {
-    color = notes_color;
+    color = piano_color;
   }
   return color;
 }
@@ -77,9 +65,9 @@ uint32_t getColorWheel(uint8_t WheelPos) {
 
 uint32_t getColorGradient(uint8_t note) {
   uint32_t color;
-  uint32_t color_red = getRGB(notes_color, 0);
-  uint32_t color_green = getRGB(notes_color, 1);
-  uint32_t color_blue = getRGB(notes_color, 2);
+  uint32_t color_red = getRGB(piano_color, 0);
+  uint32_t color_green = getRGB(piano_color, 1);
+  uint32_t color_blue = getRGB(piano_color, 2);
   if (color_red >= color_green && color_red >= color_blue) {
     color_green = (color_green + note > color_red) ? color_red : (color_green + note);
     color_blue  = (color_blue + note > color_red) ? color_red : (color_blue + note);
@@ -129,4 +117,44 @@ bool isBridgeNote(uint8_t note) {
 void updateBridgeNotes() {
   bridgeNote1 = 37 - floor(ledShift/2) - (ledShift%2);
   bridgeNote2 = bridgeNote1 + 36 + (ledShift%2);
+}
+
+void updatePianoSize(uint8_t size) {
+  updateRange(BLACK);
+  piano_size = size;
+  updateRange(BLUE);
+}
+
+void updateLEDShift(uint16_t shift) {
+  updateRange(BLACK);
+  ledShift = shift;
+  updateBridgeNotes();
+  updateRange(BLUE);
+}
+
+void updateRange(uint32_t color) {
+  if (ledShift == 1) {
+    strip.setPixelColor(0, color);
+  }
+  else if (ledShift > 1) {
+    strip.setPixelColor(ledShift-1, color);
+    strip.setPixelColor(ledShift-2, color);
+    if (ledShift > 2) {
+      selectiveWipe(BLACK, 0, ledShift-3);
+    }
+  }
+  uint16_t lastLed = getLed(piano_size);
+  if (!isBridgeNote(piano_size)) {
+    lastLed++;
+  }
+  if (lastLed == LED_COUNT-2) {
+    strip.setPixelColor(LED_COUNT-1, color);
+  }
+  else if (lastLed < LED_COUNT-2) {
+    strip.setPixelColor(lastLed+1, color);
+    strip.setPixelColor(lastLed+2, color);
+    if (lastLed < LED_COUNT-3) {
+      selectiveWipe(BLACK, lastLed+3, LED_COUNT-1);
+    }
+  }
 }
