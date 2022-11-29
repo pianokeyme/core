@@ -10,8 +10,10 @@ void connectWiFi() {
   const char* s = wificreds.ssid.c_str();
   const char* p = wificreds.pass.c_str();
 
-  for (uint8_t i=0; i<5; i++) {
-    if(WiFi.begin(s, p) == WL_CONNECTED) {
+  int res;
+  for (uint8_t i=0; i<10; i++) {
+    res = WiFi.begin(s, p);
+    if(res == WL_CONNECTED) {
       Serial.println();
       Serial.println("You're connected to the network!");
       Serial.println();
@@ -25,6 +27,7 @@ void connectWiFi() {
 
   Serial.println();
   Serial.println("Failed to connect to the network");
+  Serial.println(res);
   Serial.println();
 }
 

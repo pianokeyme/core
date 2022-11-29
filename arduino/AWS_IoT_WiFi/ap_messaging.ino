@@ -13,7 +13,8 @@ void listenForClients() {
           Serial.write(c);                    // print it out the serial monitor
           // That's the end of the client HTTP request, so send a response:
           if (c == '#') {
-            client.println("HTTP/1.1 200 OK");
+            client.println("HTTP/1.1 204");
+            client.println("Content-Length: 0");
             client.println();            
             // break out of the while loop:
             break;
