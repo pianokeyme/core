@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package keyme;
+
+message Analyzed {
+  uint32 version = 1;
+
+  string id = 2;
+  float frameSize = 5;
+
+  // Array of length,note,octave sections. [6, 1, 2, 7, 3, 8, 1, ...]
+  repeated int32 notes = 7;
+}

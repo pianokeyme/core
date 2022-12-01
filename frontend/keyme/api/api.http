@@ -1,0 +1,16 @@
+### Get all recordings
+GET http://localhost:5001/api/recordings
+Accept: application/json
+
+### Delete recording
+DELETE http://localhost:5001/api/recording/1
+
+### Save preferences
+PUT http://localhost:5001/api/preferences
+Content-Type: application/json
+
+{
+  "size": "Keyboard (61)",
+  "scheme": "Default",
+  "color": "#aa11bb"
+}

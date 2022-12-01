@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package keyme;
+
+message Sample {
+  uint32 version = 1;
+
+  string id = 2;
+  uint32 seq = 3;
+  float sampleRate = 4;
+  float frameSize = 5;
+
+  repeated float samples = 6;
+  repeated float notes = 7;
+}

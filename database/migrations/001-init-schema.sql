@@ -167,6 +167,7 @@ CREATE TABLE keyme.recording (
     name text NOT NULL,
     audio_id bigint NOT NULL,
     analyzed_id bigint NOT NULL,
+    is_preprocessed boolean NOT NULL,
     created_by bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
     deleted_at timestamp with time zone
