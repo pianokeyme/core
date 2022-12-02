@@ -7,7 +7,7 @@ import psycopg2.extensions
 from .recording_row import RecordingRow
 from .preferences_row import PreferencesRow
 from .sql import SELECT_RECORDING, SELECT_RECORDINGS, INSERT_AUDIO, INSERT_ANALYZED, INSERT_RECORDING, \
-    DELETE_RECORDING, UPDATE_PREFERENCES
+    DELETE_RECORDING, UPDATE_PREFERENCES, GET_PREFERENCES
 
 
 class LoggingCursor(psycopg2.extensions.cursor):
@@ -85,6 +85,17 @@ class Repository:
             cur.execute(DELETE_RECORDING, [row.id])
 
             cur.connection.commit()
+
+    def get_preferences(self, pref_id: int) -> PreferencesRow | None:
+        with self._get_cur() as cur:
+            cur.execute(GET_PREFERENCES, [pref_id])
+
+            row = cur.fetchone()
+
+            if row is None:
+                return None
+
+            return PreferencesRow.from_rom(row)
 
     def save_preferences(self, row: PreferencesRow):
         with self._get_cur() as cur:

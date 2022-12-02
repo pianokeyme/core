@@ -60,8 +60,9 @@ class RTEndConsumer:
                     sample_rate = sample.sampleRate
                     frame_size = sample.frameSize
 
-                notes.append(len(sample.notes) * 2)
-                notes.extend([int(note) for note in sample.notes])
+                notes.append(len(sample.notes))
+                if len(sample.notes) > 0:
+                    notes.extend([int(note) for note in sample.notes])
 
                 samples = np.asarray(sample.samples, "float32")
 

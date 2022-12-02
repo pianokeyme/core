@@ -12,21 +12,27 @@ from confluent_kafka import Producer
 from keyme.dsp import Analyzer
 from keyme.pb import Sample
 from keyme.iot import Device
+from keyme.db import Repository as DbRepository, PreferencesRow
 import config
 
 
 class RTServer:
+    SIZES = {
+        "Keyboard (61)": 61,
+        "Grand (88)": 88,
+    }
+
     NOTE_STRING = ['C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B']
     THRESHOLD = 5000
-    NOTE_OFFSET = 2 * 12 + 0  # starting octave = 0, starting note = 9 (A)
 
     MESSAGE_START = 100
     MESSAGE_SAMPLE = 101
     MESSAGE_END = 102
 
-    def __init__(self, websocket, producer: Producer, topic_samples: str, topic_end: str):
+    def __init__(self, websocket, db_repo: DbRepository, producer: Producer, topic_samples: str, topic_end: str):
         self.device = Device()
         self.websocket = websocket
+        self.db_repo = db_repo
         self.analyzer = None
         self.producer = producer
         self.topic_samples = topic_samples
@@ -36,6 +42,7 @@ class RTServer:
         self.frameSize = -1  # length of frame in ms
         self.id = ""
         self.seq = -1
+        self.prefs = PreferencesRow(0, 0, "")
 
     def analyzed_to_index(self, note: str, octave: str) -> (int, int, int):
         if not note or not octave:
@@ -84,15 +91,19 @@ class RTServer:
         note, octave = self.analyzer.analysis(audio_raw)
         index, note_n, octave_n = self.analyzed_to_index(note, octave)
 
+        notes = []
+
         if index != -1:
-            sample.notes.extend([note_n, octave_n])
+            notes.extend([note_n, octave_n])
 
             message = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
-            message[index // 8] = 0b10000000 >> (index % 8)
+            message[index // 8] |= 0b10000000 >> (index % 8)
 
             self.device.publish(0x64, message)
 
             print(f"{self.NOTE_STRING[note_n]}{octave_n} note={note} octave={octave} index={index}")
+
+        sample.notes.extend(notes)
 
         data = sample.SerializeToString()
         self.producer.produce(self.topic_samples, key=self.id, value=data)
@@ -141,6 +152,18 @@ class RTServer:
                 print(f"rt: invalid message with id {message_id}")
 
     async def run(self):
+        prefs = self.db_repo.get_preferences(1)
+
+        if prefs is None:
+            return
+
+        self.size = self.SIZES[json.loads(prefs.prefs)["size"]]
+
+        if self.size == 88:
+            self.NOTE_OFFSET = 0 * 12 + 9  # startingOctave * 12 + startingNote
+        else:
+            self.NOTE_OFFSET = 2 * 12 + 0  # startingOctave * 12 + startingNote
+
         try:
             await self.handle_loop()
         finally:
@@ -155,8 +178,10 @@ async def main():
 
     producer = Producer(conf)
 
+    db_repo = DbRepository()
+
     async def handler(websocket):
-        server = RTServer(websocket, producer, config.topic_samples, config.topic_end)
+        server = RTServer(websocket, db_repo, producer, config.topic_samples, config.topic_end)
         await server.run()
 
     async with websockets.serve(handler, config.server_host, config.server_port):

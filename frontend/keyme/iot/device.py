@@ -1,3 +1,5 @@
+import sys
+import os
 from typing import Iterable
 
 from awscrt import io, mqtt
@@ -7,9 +9,13 @@ from awsiot import mqtt_connection_builder
 class Device:
     ENDPOINT = "a1gthlqk9w3ufv-ats.iot.ca-central-1.amazonaws.com"
     CLIENT_ID = "controller_dev"
-    PATH_TO_CERTIFICATE = "certs/041fe7d31e50e628c8aa5c6670753a39f873bcde8c966469c0c96a32ae3d5675-certificate.pem.crt"
-    PATH_TO_PRIVATE_KEY = "certs/041fe7d31e50e628c8aa5c6670753a39f873bcde8c966469c0c96a32ae3d5675-private.pem.key"
-    PATH_TO_AMAZON_ROOT_CA_1 = "certs/AmazonRootCA1.pem"
+    PATH_TO_CERTIFICATE = os.path.join(os.getcwd(),
+                                       "certs",
+                                       "041fe7d31e50e628c8aa5c6670753a39f873bcde8c966469c0c96a32ae3d5675-certificate.pem.crt")
+    PATH_TO_PRIVATE_KEY = os.path.join(os.getcwd(),
+                                       "certs",
+                                       "041fe7d31e50e628c8aa5c6670753a39f873bcde8c966469c0c96a32ae3d5675-private.pem.key")
+    PATH_TO_AMAZON_ROOT_CA_1 = os.path.join(os.getcwd(), "certs", "AmazonRootCA1.pem")
     TOPIC = "arduino/incoming"
 
     def __init__(self):

@@ -72,6 +72,11 @@ where r.id = %s;
 """
 
 # langauge=sql
+GET_PREFERENCES = """
+select p.id, p.for_user, p.prefs from keyme.preferences p where p.id = 1;
+"""
+
+# langauge=sql
 UPDATE_PREFERENCES = """
 update keyme.preferences p set prefs = %s where p.for_user = 1;
 """
