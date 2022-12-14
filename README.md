@@ -1,3 +1,5 @@
+![Pylint workflow status](https://github.com/pianokeyme/core/actions/workflows/pylint.yml/badge.svg)
+
 # KeyMe Core ⚙️
 
 - Arduino project
